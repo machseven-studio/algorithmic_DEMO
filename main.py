@@ -584,11 +584,16 @@ DEMO_PASSWORD = "DemoAccess2026!"
 DEMO_INSTITUTE_NAME = "Horizon Public School"
 
 
-def require_demo_key(x_demo_seed_key: str = Header(None)):
-    if not x_demo_seed_key or not secrets.compare_digest(x_demo_seed_key, DEMO_SEED_KEY):
+def require_demo_key(x_demo_seed_key: str = Header(None), key: str = None):
+    # Accepts the secret either as a header (for curl/Postman) or as a
+    # ?key= URL parameter (so it can be triggered by just visiting a link
+    # in a browser - no terminal needed).
+    provided = x_demo_seed_key or key
+    if not provided or not secrets.compare_digest(provided, DEMO_SEED_KEY):
         raise HTTPException(status_code=403, detail="Invalid or missing demo seed key")
 
 
+@app.get("/api/demo/seed")
 @app.post("/api/demo/seed")
 def seed_demo_account(_: None = Depends(require_demo_key)):
     conn = get_conn()
