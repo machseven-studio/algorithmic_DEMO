@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Institutional Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; }
+        h1 { color: #1a202c; }
+        .btn-group { margin-bottom: 20px; }
+        button { padding: 10px 18px; margin-right: 10px; cursor: pointer; border: none; background: #3182ce; color: white; border-radius: 4px; }
+        button:hover { background: #2b6cb0; }
+        #display-area { background: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 100px; }
+    </style>
+</head>
+<body>
+    <h1>Algorithmic Dashboard</h1>
+    <p>Select a module below to inspect system records:</p>
+    
+    <div class="btn-group">
+        <button onclick="loadModuleData('teachers')">Teachers</button>
+        <button onclick="loadModuleData('classrooms')">Classrooms</button>
+        <button onclick="loadModuleData('invigilators')">Invigilators</button>
+        <button onclick="loadModuleData('defaulters')">Fee Defaulters</button>
+    </div>
+
+    <div id="display-area">
+        <p><em>Click any button above to pull data from your FastAPI backend.</em></p>
+    </div>
+
+    <script>
+        async function loadModuleData(moduleName) {
+            const displayDiv = document.getElementById('display-area');
+            displayDiv.innerHTML = `<p>Loading dynamic records for <strong>${moduleName}</strong>...</p>`;
+
+            try {
+                // Uses relative path so it works everywhere (locally and on Render)
+                const response = await fetch(`/api/records/${moduleName}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned HTTP status ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    displayDiv.innerHTML = `<p>No records found in database for <strong>${moduleName}</strong>.</p>`;
+                    return;
+                }
+
+                let html = `<h3>${moduleName.toUpperCase()} Data</h3><ul>`;
+                data.forEach(item => {
+                    html += `<li>${JSON.stringify(item)}</li>`;
+                });
+                html += '</ul>';
+
+                displayDiv.innerHTML = html;
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                displayDiv.innerHTML = `<p style="color:red;">Failed to load data: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
