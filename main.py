@@ -1,4 +1,4 @@
-fastapi
+import fastapi
 gunicorn
 uvicorn
 pydantic
