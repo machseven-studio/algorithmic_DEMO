@@ -1,6 +1,5 @@
-import fastapi
-gunicorn
-uvicorn
-pydantic
-email-validator
-python-multipart
+import os
+import sqlite3
+import hashlib
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
